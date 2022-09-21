@@ -11,7 +11,6 @@ def tanh(x):
 def tanh_prime(x):
     return 1.0 - tanh(x) ** 2
 
-
 class NeuralNetwork:
     def __init__(self, layers, activation='tanh'):
         """
@@ -34,25 +33,17 @@ class NeuralNetwork:
             # layer[i-1]+1 = layer[0]+1 = 2+1 = 3
             # layers[i] + 1 = layer[1]+1 = 3
             r = 2 * np.random.random((layers[i - 1] + 1, layers[i] + 1)) - 1  # add 1 for bias node
-            print('---------初始化输入层和隐含层之间的权值---------')
-            print(r)
             self.weights.append(r)
 
         # 初始化输出层权值
         r = 2 * np.random.random((layers[i] + 1, layers[i + 1])) - 1
-        print('---------初始化输出层权值---------')
-        print(r)
         self.weights.append(r)
-        print('---------所有权重---------')
-        print(self.weights)
 
     def fit(self, X, Y, learning_rate=0.2, epochs=10000):
         # 将一列一加到X
         # 这是为了将偏置单元添加到输入层
         # np.hstack()将两个数组按水平方向组合起来, 4*2 --> 4*3
         X = np.hstack([np.ones((X.shape[0], 1)), X])
-        print('----将一列一加到X,将偏置单元添加到输入层----')
-        print(X)
 
         for k in range(epochs):  # 训练固定次数
             # if k % 1000 == 0: print('epochs:', k)
@@ -66,8 +57,13 @@ class NeuralNetwork:
                 dot_value = np.dot(a[l], self.weights[l])  # 权值矩阵中每一列代表该层中的一个结点与上一层所有结点之间的权值
                 activation = self.activation(dot_value)     # 放入激活函数
                 a.append(activation)
-                print(l)
 
+            '''
+            反向传播算法的含义是:第l层的一个神经元的误差项delta(l)是
+            所有与该神经元相连的第l+1层的神经元的误差项delta(l+1)的权重
+            和。然后，再乘上该神经元激活函数的梯度。
+            '''
+            # 均方误差函数   E = 1/2 * (Y - a)**2
             # 反向递推计算delta:从输出层开始,先算出该层的delta,再向前计算
             error = Y[i] - a[-1]  # 计算输出层delta
             deltas = [error * self.activation_prime(a[-1])]
@@ -80,10 +76,10 @@ class NeuralNetwork:
             deltas.reverse()  # 逆转列表中的元素
 
             # backpropagation
-            # 1. Multiply its output delta and input activation to get the gradient of the weight.
-            # 2. Subtract a ratio (percentage) of the gradient from the weight.
+            # 1. 将其输出增量与输入激活相乘，得到权重的梯度。
+            # 2. 从权重中减去渐变的比率（百分比）。
             for i in range(len(self.weights)):  # 逐层调整权值
-                layer = np.atleast_2d(a[i])  # View inputs as arrays with at least two dimensions
+                layer = np.atleast_2d(a[i])  # 将输入作为至少具有两个维度的数组查看
                 delta = np.atleast_2d(deltas[i])
                 self.weights[i] += learning_rate * np.dot(layer.T, delta)  # 每输入一次样本,就更新一次权值
 
