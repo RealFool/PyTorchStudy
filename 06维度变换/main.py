@@ -116,8 +116,24 @@ a = torch.rand(4, 3, 32, 32)
 # [b, c, H, W] -> [b, W, H, c] -> [b, c, W, H]  数据维度顺序改变了
 a1 = a.transpose(1, 3).contiguous().view(4, 3*32*32).view(4, 3, 32, 32)
 
-# [b, c, H, W] -> [b, W, H, c] --W和c换--> [b, c, H, W]  数据维度顺序一致
-a2 = a.transpose(1, 3).contiguous().view(4, 3*32*32).view(4, 32, 32, 3)
+# [b, c, H, W] -> [b, W, H, c] --后三维度压缩--> [b, (W, H, c)] --按照压缩前的结构还原--> [b, W, H, c] --W和c换--> [b, c, H, W]  数据维度与初始值顺序一致
+a2 = a.transpose(1, 3).contiguous().view(4, 3*32*32).view(4, 32, 32, 3).transpose(3, 1)
 
 print(torch.all(torch.eq(a, a1)))
 print(torch.all(torch.eq(a, a2)))
+
+'''
+permute
+对维度任意重拍，参数对应的索引项为原来数据绑定项的重排
+例如：
+b = torch.rand(4, 3, 28, 32)
+b.permute(0, 2, 3, 1)  -->  torch.Size([4, 28, 32, 3])
+表示原来的dim0上的4放在0位置，原来的dim2上的28放在1位置，原来的dim3上的32放在2位置，原来的dim1上的3放在3位置
+'''
+print('-------------------permute-----------------------')
+b = torch.rand(4, 3, 28, 32)
+
+print(b.transpose(1, 3).shape)
+print(b.transpose(1, 3).transpose(1, 2).shape)
+
+print(b.permute(0, 2, 3, 1).shape)
