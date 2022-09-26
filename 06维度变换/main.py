@@ -73,8 +73,8 @@ print(b.squeeze(-4).shape)
 
 '''
 Expand / repeat
-维度扩展 / 拷贝维度
-不主动数据 / 增加数据
+维度扩展 / 拷贝维度（成倍）
+不主动增加数据 / 增加数据
 推荐 / 不推荐（Memory touched）
 只能 1->N，不能 M->N
 若为-1则保持当前维度不变
