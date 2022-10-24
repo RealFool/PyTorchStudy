@@ -47,7 +47,7 @@ idx = idx[1]
 print(idx)
 
 label = torch.arange(10) + 100
-print(label)    # (1, 10)
+print(label)  # (1, 10)
 
 print(torch.expand_copy(label, [4, 10]))
 print(torch.gather(torch.expand_copy(label, [4, 10]), dim=1, index=idx.long()))
